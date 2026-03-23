@@ -1,0 +1,97 @@
+name: Build and Release Firefox Add-on
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (example: v1.0.1). Defaults to v<manifest version>."
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="$(jq -r '.version' manifest.json)"
+          if [[ -z "${VERSION}" || "${VERSION}" == "null" ]]; then
+            echo "manifest.json is missing a valid version."
+            exit 1
+          fi
+
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            INPUT_TAG="${{ inputs.tag }}"
+            if [[ -n "${INPUT_TAG}" ]]; then
+              TAG="${INPUT_TAG}"
+            else
+              TAG="v${VERSION}"
+            fi
+          fi
+
+          if [[ "${TAG}" != v* ]]; then
+            echo "Tag must start with 'v'. Received: ${TAG}"
+            exit 1
+          fi
+
+          TAG_VERSION="${TAG#v}"
+          if [[ "${TAG_VERSION}" != "${VERSION}" ]]; then
+            echo "Tag version (${TAG_VERSION}) does not match manifest version (${VERSION})."
+            exit 1
+          fi
+
+          XPI_NAME="yomiruby-firefox-${TAG}.xpi"
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "xpi_name=${XPI_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Build .xpi package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p dist/package
+          rsync -a \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'dist' \
+            --exclude '*.xpi' \
+            ./ dist/package/
+
+          (
+            cd dist/package
+            zip -r "../${{ steps.meta.outputs.xpi_name }}" .
+          )
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.xpi_name }}
+          path: dist/${{ steps.meta.outputs.xpi_name }}
+          if-no-files-found: error
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: YomiRuby ${{ steps.meta.outputs.tag }}
+          generate_release_notes: true
+          files: dist/${{ steps.meta.outputs.xpi_name }}
