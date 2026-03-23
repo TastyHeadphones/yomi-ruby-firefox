@@ -42,7 +42,7 @@
 
 ## Quick Start
 
-Firefox 121+ is required for this Manifest V3 build.
+Firefox 140+ is required for this Manifest V3 build.
 
 1. Clone this repository.
 2. Open `about:debugging#/runtime/this-firefox`.

@@ -1,8 +1,8 @@
 # YomiRuby Privacy Policy
 
-Effective date: March 16, 2026
+Effective date: March 24, 2026
 
-YomiRuby is a Chrome extension that annotates Japanese text with furigana on web pages.
+YomiRuby is a Firefox extension that annotates Japanese text with furigana on web pages.
 
 ## 1. Data We Process
 
@@ -15,8 +15,8 @@ YomiRuby processes only the data needed to provide furigana annotation:
 
 ## 2. Where Data Is Stored
 
-- API key and extension settings are stored in `chrome.storage.sync` (your browser profile; may sync via your Chrome account if browser sync is enabled).
-- Temporary annotation status is stored in `chrome.storage.session` and is not persisted long-term.
+- API key and extension settings are stored in `browser.storage.sync` (your browser profile; may sync via your Firefox Account if browser sync is enabled).
+- Temporary annotation status is stored in `browser.storage.session` (or `browser.storage.local` fallback) and is not persisted long-term.
 - YomiRuby does not operate its own backend server and does not store your browsing data on developer-controlled servers.
 
 ## 3. Third-Party API Use
@@ -66,4 +66,4 @@ This policy may be updated when extension behavior changes. Updates will be publ
 
 For privacy questions, open an issue in this repository:
 
-`https://github.com/TastyHeadphones/yomi-ruby-chrome/issues`
+`https://github.com/TastyHeadphones/yomi-ruby-firefox/issues`

@@ -1,12 +1,17 @@
 {
   "manifest_version": 3,
   "name": "YomiRuby",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Annotate Japanese kanji on web pages with furigana using ruby tags.",
   "browser_specific_settings": {
     "gecko": {
       "id": "yomiruby@tastyheadphones.com",
-      "strict_min_version": "121.0"
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "websiteContent"
+        ]
+      }
     }
   },
   "action": {
